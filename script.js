@@ -3,7 +3,18 @@ var dict = {
   ":": function(s) { dict[s.pop()] = s.pop(); },
   "+": function(s) { s.push(s.pop() + s.pop()) },
 };
-var specials = {};
+var specials = {
+  "[": function(stack, tokens, idx) {
+    var end = matchingIndex("[", "]", tokens, i);
+    stack.push(makeFun(tokens.slice(i+1,end)));
+    return end;
+  },
+  "'": function(stack, tokens, idx) {
+  	stack.push(tokens[idx+1]);
+    return idx+1;
+  }
+  
+};
 
 function matchingIndex(left, right, tokens, startIdx) {
   var i = startIdx +  1, balance = 1;	
@@ -22,14 +33,13 @@ function makeFun(tokens) {
 
 function interpret(stack, tokens) {
   for(var i = 0; i < tokens.length; i++) {
-    if(tokens[i] == "[") {
-      var end = matchingIndex("[", "]", tokens, i);
-      stack.push(makeFun(tokens.slice(i+1,end)));
-      i = end;
-    } else if(dict[tokens[i]]) {
-  		dict[tokens[i]](stack);
+    var token = tokens[i];
+    if(specials[token]) {
+      i = specials[token](stack, tokens, i);
+    } else if(dict[token]) {
+  		dict[token](stack);
     } else {
-    	stack.push(tokens[i]);
+    	stack.push(parseFloat(tokens[i]));
     }
   }
   return stack;
