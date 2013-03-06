@@ -10,8 +10,8 @@ var dict = {
 };
 var specials = {
   "[": function(stack, tokens, idx) {
-    var end = matchingIndex("[", "]", tokens, i);
-    stack.push(makeFun(tokens.slice(i+1,end)));
+    var end = matchingIndex("[", "]", tokens, idx);
+    stack.push(makeFun(tokens.slice(idx+1,end)));
     return end;
   },
   "'": function(stack, tokens, idx) {
