@@ -1,8 +1,3 @@
-// TODO [ ] seems to be eating things after it
-// replace interpret:
-//  (specials[token] || dict[token] || parseNum)(stack, tokens, idx)
-
-
 var stack = [];
 var dict = {
   ":": function(s) { dict[s.pop()] = s.pop(); },
@@ -34,18 +29,21 @@ function makeFun(tokens) {
   console.log("fun created:" + tokens);
   return function(stack) { interpret(stack, tokens); };
 }
+
+function parseNum(stack, tokens, idx) {
+  stack.push(parseFloat(tokens[idx]));
+  return idx;
 }
 
 function interpret(stack, tokens) {
   for(var i = 0; i < tokens.length; i++) {
     var token = tokens[i];
-    if(specials[token]) {
-      i = specials[token](stack, tokens, i);
-    } else if(dict[token]) {
+    if(dict[token]) 
       dict[token](stack);
-    } else {
-      stack.push(parseFloat(tokens[i]));
-    }
+    else 
+      i = (specials[token] || parseNum)(stack, tokens, i);
+    
+    console.log("one interp: ", stack, tokens, i);
   }
   return stack;
 }
