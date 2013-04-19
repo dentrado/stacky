@@ -1,18 +1,17 @@
+// TODO [ ] seems to be eating things after it
+// replace interpret:
+//  (specials[token] || dict[token] || parseNum)(stack, tokens, idx)
+
+
 var stack = [];
 var dict = {
-  ":": function(s) { dict[s.pop()] = s.pop(); }, // uses dict
-  "+": function(s) { s.push(s.pop() + s.pop()) },
-  "dup": function(s) { var v = s.pop(); s.push(v); s.push(v) }
-  "?": function(s) { 
-    var f = s.pop(), t = s.pop(), test = s.pop(); 
-    return test ? t : f;
-  },
-  "call": function(s) { s.pop()(s); }
+  ":": function(s) { dict[s.pop()] = s.pop(); },
+  "+": function(s) { s.push(s.pop() + s.pop()) }
 };
 var specials = {
   "[": function(stack, tokens, idx) {
-    var end = matchingIndex("[", "]", tokens, idx);
-    stack.push(makeFun(tokens.slice(idx+1,end)));
+    var end = matchingIndex("[", "]", tokens, i);
+    stack.push(makeFun(tokens.slice(i+1,end)));
     return end;
   },
   "'": function(stack, tokens, idx) {
@@ -32,7 +31,7 @@ function matchingIndex(left, right, tokens, startIdx) {
 }
 
 function makeFun(tokens) {
-  console.log("fun created:", tokens);
+  console.log("fun created:" + tokens);
   return function(stack) { interpret(stack, tokens); };
 }
 
@@ -44,16 +43,9 @@ function parseNum(stack, tokens, idx) {
 function interpret(stack, tokens) {
   for(var i = 0; i < tokens.length; i++) {
     var token = tokens[i];
-    if(dict[token]) 
-      dict[token](stack);
-    else 
-      i = (specials[token] || parseNum)(stack, tokens, i);
-    
-    console.log("one interp: ", stack, tokens, i);
+    (specials[token] || dict[token] || parseNum)(stack, tokens, i);
   }
   return stack;
 }
 
 function i(str){ interpret(stack, str.split(" ")); return stack; }
-
-var defs = "[ ? call ] ' if :           "
