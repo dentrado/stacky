@@ -46,3 +46,19 @@ function interpret(stack, tokens) {
 }
 
 function i(str){ interpret(stack, str.split(" ")); return stack; }
+
+//Drawing
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+function draw() {
+    var img = ctx.createImageData(canvas.width, canvas.heigth);
+    for(var x = 0; x < canvas.width; x++) {
+        for(var y = 0; y < canvas.height; y++) {
+            img.data[0 * 4] = x + y;
+        }
+    }
+    ctx.putImageData(img, 0, 0);
+}
+    
+
