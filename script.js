@@ -32,7 +32,6 @@ function matchingIndex(left, right, tokens, startIdx) {
 }
 
 function makeFun(tokens) {
-  // console.log("fun created:", tokens);
   return function(stack, dict) { interpret(stack, dict, tokens); };
 }
 
@@ -45,9 +44,7 @@ function interpret(stack, dict, tokens) {
   for(var i = 0; i < tokens.length; i++) {
     var token = tokens[i];
     var ret = (dict[token] || parseNum)(stack, dict, tokens, i);
-    if(!isNaN(ret))
-      i = ret;
-//    console.log("one interp: ", "" + stack, tokens, i);
+    if(!isNaN(ret)) i = ret;
   }
   return stack;
 }
@@ -59,34 +56,29 @@ function i(stack, dict, str){
 
 //Drawing
 function draw(dict) {
-  if(!dict.draw)
-    return;
+  if(!dict.draw) return;
   var img = ctx.createImageData(canvas.width, canvas.height);
   for(var y = 0; y < img.height; y++) {
     for(var x = 0; x < img.width; x++) {
       var index = (x + y * img.width) * 4;
       var s = [y, x];
       dict.draw(s, dict);
-      if(x == 10 && y == 10)
-        console.log(s);
       var b = s.pop(), g = s.pop(), r = s.pop();
-
-      img.data[index + 0] = r; // r
-      img.data[index + 1] = g; // g
-      img.data[index + 2] = b; // b
+      img.data[index + 0] = r;   // r
+      img.data[index + 1] = g;   // g
+      img.data[index + 2] = b;   // b
       img.data[index + 3] = 255; // a
     }
   }
   ctx.putImageData(img, 0, 0);
 }
 
-var defs = "[ ? call ] ' if :\n" +
+function init() {
+  defs = "[ ? call ] ' if :\n" +
       "[ -1 * + ] ' - :\n" +
       "[ dup dup ] ' grey :\n" +
       "[ 100 - 0 1 ? ] ' hundred? :\n" +
       "[ + dup hundred? [ 255 255 ] [ grey ] if ] ' draw :";
-
-function init() {
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
   code = document.getElementById("code");
