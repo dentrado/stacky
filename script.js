@@ -58,18 +58,56 @@ function i(stack, dict, str){
 }
 
 //Drawing
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+function draw(dict) {
+  if(!dict.draw)
+    return;
+  var img = ctx.createImageData(canvas.width, canvas.height);
+  for(var y = 0; y < img.height; y++) {
+    for(var x = 0; x < img.width; x++) {
+      var index = (x + y * img.width) * 4;
+      var s = [y, x];
+      dict.draw(s, dict);
+      if(x == 10 && y == 10)
+        console.log(s);
+      var b = s.pop(), g = s.pop(), r = s.pop();
 
-function draw() {
-    var img = ctx.createImageData(canvas.width, canvas.heigth);
-    for(var x = 0; x < canvas.width; x++) {
-        for(var y = 0; y < canvas.height; y++) {
-            img.data[0 * 4] = x + y;
-        }
+      img.data[index + 0] = r; // r
+      img.data[index + 1] = g; // g
+      img.data[index + 2] = b; // b
+      img.data[index + 3] = 255; // a
     }
-    ctx.putImageData(img, 0, 0);
+  }
+  ctx.putImageData(img, 0, 0);
 }
 
+var defs = "[ ? call ] ' if :\n" +
+      "[ -1 * + ] ' - :\n" +
+      "[ dup dup ] ' grey :\n" +
+      "[ 100 - 0 1 ? ] ' hundred? :\n" +
+      "[ + dup hundred? [ 255 255 ] [ grey ] if ] ' draw :";
 
-var defs = "[ ? call ] ' if :           ";
+function init() {
+  canvas = document.getElementById("canvas");
+  ctx = canvas.getContext("2d");
+  code = document.getElementById("code");
+  code.value = defs;
+  output = document.getElementById("output");
+  // Shift + Enter to eval and draw
+  window.addEventListener("keydown", function(e) {
+    if(e.shiftKey && e.which == 13 && code.value) {
+      var stack = [];
+      var dict = Object.create(dictionary);
+      i(stack, dict, code.value);
+      console.log(stack, dict);
+
+      draw(dict);
+      output.innerHTML = "" + stack;
+
+      e.preventDefault(); // stop Enters newline
+      return false;
+    }
+    return true;
+  });
+}
+
+window.onload = init;
