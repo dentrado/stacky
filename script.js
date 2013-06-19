@@ -68,13 +68,14 @@ function i(stack, dict, str){
 }
 
 //Drawing
-function draw(dict) {
+function draw() {
   if(!dict.draw) return;
   var img = ctx.createImageData(canvas.width, canvas.height);
+  var time = Date.now();//%512;
   for(var y = 0; y < img.height; y++) {
     for(var x = 0; x < img.width; x++) {
       var index = (x + y * img.width) * 4;
-      var s = [y, x];
+      var s = [time, y, x];
       dict.draw(s, dict);
       var b = s.pop(), g = s.pop(), r = s.pop();
       img.data[index + 0] = r;   // r
@@ -86,12 +87,18 @@ function draw(dict) {
   ctx.putImageData(img, 0, 0);
 }
 
+// TODO: real dip, better solution ot swapping out draw?
+
 function init() {
+  dict = Object.create(dictionary);
   defs = "[ ? call ] ' if :\n" +
-      "[ -1 * + ] ' - :\n" +
-      "[ dup dup ] ' grey :\n" +
-      "[ 100 - 0 1 ? ] ' hundred? :\n" +
-      "[ + dup hundred? [ 255 255 ] [ grey ] if ] ' draw :";
+    "[ -1 * + ] ' - :\n" +
+    "[ dup dup ] ' grey :\n" +
+    "[ dup dip dip ] ' bi@ :\n" +
+    "[ * * 0.00001 * sin 255 * grey ] ' draw :\n" +
+    "[ 255 * ] ' scale :\n" +
+    "[ 0.0001 * ] ' slower :\n" +
+    "[ xor * 0.0001 * sin scale grey ] ' draw :\n";
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
   code = document.getElementById("code");
@@ -101,7 +108,7 @@ function init() {
   window.addEventListener("keydown", function(e) {
     if(e.shiftKey && e.which == 13 && code.value) {
       var stack = [];
-      var dict = Object.create(dictionary);
+      dict = Object.create(dictionary);
       i(stack, dict, code.value);
       console.log(stack, dict);
 
@@ -113,6 +120,7 @@ function init() {
     }
     return true;
   });
+  setInterval(function() { draw(); }, 50);
 }
 
 window.onload = init;
