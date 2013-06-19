@@ -1,13 +1,26 @@
 var stack = [];
 var dictionary = {
+  // Math
   "+": function(s) { s.push(s.pop() + s.pop()); },
   "*": function(s) { s.push(s.pop() * s.pop()); },
+  "mod": function(s) { var v = s.pop(); s.push(s.pop() % v); },
+  "sin": function(s) { s.push(Math.sin(s.pop())); },
+  "cos": function(s) { s.push(Math.cos(s.pop())); },
+  "xor": function(s) { s.push(s.pop() ^ s.pop()); },
+  // Stack shuffling
   "dup": function(s) { var v = s.pop(); s.push(v); s.push(v); },
+  "drop": function(s) { s.pop(); },
+  "swap": function(s) { var v = s.pop(), w = s.pop(); s.push(v); s.push(w); },
+  "rot": function(s) {
+    var v = s.pop(), w = s.pop(), x = s.pop();
+    s.push(w); s.push(v); s.push(x);
+  },
   "?": function(s) {
     var f = s.pop(), t = s.pop(), test = s.pop();
     s.push(test ? t : f);
   },
   // specials
+  "dip": function(s, dict) { dict.swap(s); var v = s.pop(); dict.call(s, dict); s.push(v); },
   "call": function(s, dict) { s.pop()(s, dict); },
   ":": function(s, dict) { dict[s.pop()] = s.pop(); },
   "[": function(stack, dict, tokens, idx) {
