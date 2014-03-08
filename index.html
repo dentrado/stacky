@@ -4,11 +4,48 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <!-- <link rel="stylesheet" href="style.css"> -->
-    <script src="script.js" defer=""></script>
+    <script src="compiled.js" defer=""></script>
   </head>
   <body>
-    <canvas id="canvas" style="width:512px; height:512px;"></canvas>
-    <textarea id="code" style="width:512px; height:512px;"></textarea>
+    <canvas id="canvas" width="256px" height="256px" style="width:512px; height:512px;"></canvas>
+    <textarea id="code" style="width:512px; height:512px;">
+: if ( test q1 q2 -- ) ? call ;
+: - ( x y -- x-y ) -1 * + ;
+
+: over ( x y -- x y x ) [ dup ] dip swap ;
+: -rot ( x y z -- z x y ) rot rot ;
+: 2dup ( x y - x y x y ) over over ;
+: 3dup ( x y z - x y z x y z ) [ 2dup ] dip dup [ -rot ] dip ;
+: 2dip ( x y q -- x y ) swap [ dip ] dip ;
+: 3dip swap [ 2dip ] dip ;
+: keep ( x q -- qresult x ) [ dup ] dip dip ;
+: 2keep [ 2dup ] dip 2dip ;
+: 3keep [ 3dup ] dip 3dip ;
+: bi ( x q1 q2 -- ) [ keep ] dip call ;
+: 2bi ( x y q1 q2 -- ) [ 2keep ] dip call ;
+: 3bi ( x y z q1 q2 -- ) [ 3keep ] dip call ;
+
+: rotate-x ( angle y x - x ) -rot over cos * -rot sin * - ;
+: rotate-y ( angle y x - x ) -rot over sin * -rot cos * + ;
+
+
+: grey ( g - r g b ) dup dup ;
+: bi@ ( x.. y.. q -- x y )  dup dip dip ;
+: scale ( x -- x' ) 255 * ;
+: slower ( x -- x' ) 0.01 * ;
+: cycle ( x -- x' ) 255 mod ;
+
+: draw ( t y x -- r g b ) * * 0.00001 * sin 255 * grey ;
+
+(
+: draw rot rotate swap dup slower cycle rotate grey ;
+)
+
+: draw [ slower ] 2dip [ rotate-x ] [ drop swap drop ] 3bi xor grey ;
+: draw [ slower ] 2dip [ rotate-x ] [ rotate-y ] 3bi xor grey ;
+
+
+  </textarea>
     <div id="output"></div>
   </body>
 </html>
