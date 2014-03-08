@@ -120,7 +120,7 @@ function init() {
     }
     return true;
   });
-  setInterval(function() { draw(); }, 50);
+  setInterval(draw, 50);
 }
 
 window.onload = init;
