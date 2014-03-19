@@ -13,10 +13,12 @@ var dictionary = {
   "dup": "var v = s.pop(); s.push(v); s.push(v);",
   "drop": "s.pop();",
   "swap": "var v = s.pop(), w = s.pop(); s.push(v); s.push(w);",
-  "rot": "var v = s.pop(), w = s.pop(), x =s.pop(); s.push(w); s.push(v); s.push(x);",
+  "rot": "var v = s.pop(), w = s.pop(), x =s.pop(); s.push(w,v,x);",
   "?": "var f = s.pop(), t = s.pop(), test=s.pop(); s.push(test ? t : f);",
   "call": "s.pop()();",
   "dip": "var v = s.pop(), w = s.pop(); s.push(v); s.pop()(); s.push(w);",
+  // debug
+  "dbg": "console.log(s.pop());"
 };
 var specials = {
   ":": function(dict, tokens, idx) {
@@ -81,10 +83,12 @@ function draw() {
 
   var img = ctx.createImageData(canvas.width, canvas.height);
   time += 5 //= Date.now();//%512;
+  var s = [];
   for(var y = 0; y < img.height; y++) {
     for(var x = 0; x < img.width; x++) {
       var index = (x + y * img.width) * 4;
-      var s = [time, y, x];
+      s.push(time, y, x);
+      //var s = [time, y, x];
       drawingfn(s);
       var b = s.pop(), g = s.pop(), r = s.pop();
       img.data[index + 0] = r;   // r
@@ -130,25 +134,7 @@ function init() {
     }
     return true;
   });
-  setInterval(draw, 100);
+  setInterval(draw, 50);
 }
 
 window.onload = init;
-
-/*
-: if  ? call ;
-: -   -1 * + ;
-: grey dup dup ;
-: bi@  dup dip dip ;
-: draw * * 0.00001 * sin 255 * grey ;
-: scale 255 * ;
-: slower 0.0001 * ;
-: draw  xor * 0.0001 * sin scale grey ;
-
-: draw  xor swap 512 mod slower sin scale * grey ;
-
-: rotate dup cos swap sin rot * rot rot * swap - ;
-[ y x angle ] drop
-
-
-*/

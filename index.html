@@ -12,6 +12,7 @@
 : if ( test q1 q2 -- ) ? call ;
 : - ( x y -- x-y ) -1 * + ;
 
+: 2drop ( x y -- ) drop drop ;
 : over ( x y -- x y x ) [ dup ] dip swap ;
 : -rot ( x y z -- z x y ) rot rot ;
 : 2dup ( x y - x y x y ) over over ;
@@ -44,6 +45,10 @@
 : draw [ slower ] 2dip [ rotate-x ] [ drop swap drop ] 3bi xor grey ;
 : draw [ slower ] 2dip [ rotate-x ] [ rotate-y ] 3bi xor grey ;
 
+: loop 2dup [ call ] 3dip [ swap rot ] dip [ 2drop ] if ;
+
+
+3 [ 1 - dup dup dbg ] [ loop ] loop
 
   </textarea>
     <div id="output"></div>
