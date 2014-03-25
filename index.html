@@ -48,7 +48,12 @@
 : loop 2dup [ call ] 3dip [ swap rot ] dip [ 2drop ] if ;
 
 
-3 [ 1 - dup dup dbg ] [ loop ] loop
+: draw
+[ slower ] 2dip            ( time )
+[ slower sin scale ] dip   ( y )
+slower cos scale           ( x )
+[ rotate-x ] [ rotate-y ] 3bi xor grey ;
+
 
   </textarea>
     <div id="output"></div>
