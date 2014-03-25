@@ -104,19 +104,10 @@ function draw() {
 
 function init() {
   dict = Object.create(dictionary);
-  defs = ": if  ? call ; \n\
-: over [ dup ] dip swap ; \n\
-: -   -1 * + ; \n\
-: grey dup dup ; \n\
-: bi@  dup dip dip ; \n\
-: draw * * 0.00001 * sin 255 * grey ; \n\
-: scale 255 * ; \n\
-: slower 0.0001 * ; \n\
-: draw  xor * 0.0001 * sin scale grey ;"
   canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
   code = document.getElementById("code");
-  //code.value = defs;
+
   output = document.getElementById("output");
   // Shift + Enter to eval and draw
   window.addEventListener("keydown", function(e) {
