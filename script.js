@@ -133,9 +133,9 @@ var typeDictionary = {
     if(func instanceof Function) {
       func(s, dict);
     } else if(func instanceof Set) {
-      // return multiple times here?! 
+      // return multiple times here?! (impl nondeterminism while at it :)
       // or just choose one of the funcions above and continue with that. 
-      // and assert that all typestacks are the same for each function
+      // and assert that all typestacks are the same for each function 
 
       const stacks = []
       let lastF;
@@ -148,7 +148,10 @@ var typeDictionary = {
         lastF = f;
       }
       console.log('alternative universes: ', stacks);
-      console.assert(stacks.every((s, _, arr) => arr[0].length === s.length), 'All functions in union should have same stack effects');
+      console.assert(
+        stacks.every((s, _, arr) => arr[0].length === s.length && arr.every((t, i) => t === s[i])), 
+        'All functions in union should have same stack effects'
+      );
       lastF(s, dict);
 
     } else {
@@ -174,10 +177,10 @@ function interpret(stack, dict, tokens) {
   for(var i = 0; i < tokens.length; i++) {
     var token = tokens[i];
     var impl = (dict[token] || dict.parseNum);
-    console.log('impl:', token, impl, dict);
+    // console.log('impl:', token, impl, dict);
     var ret = impl(stack, dict, tokens, i);
     if(!isNaN(ret)) i = ret;
-    console.log('i:', token, stack);
+    // console.log('i:', token, stack);
   }
   return stack;
 }
@@ -189,7 +192,6 @@ function i(stack, dict, str){
 
 //Drawing
 function draw() {
-  console.warn('trying to draw');
   if(!dict.draw) return;
   var img = ctx.createImageData(canvas.width, canvas.height);
   var time = Date.now();//%512;
@@ -240,7 +242,7 @@ function init() {
       i(stack, dict, code.value);
       console.log('dataStack', stack, dict);
 
-      // draw(dict);
+      draw(dict);
       output.innerHTML = "" + stack;
 
       e.preventDefault(); // stop Enters newline
@@ -248,7 +250,7 @@ function init() {
     }
     return true;
   });
-  // setInterval(draw, 50);
+  setInterval(draw, 200);
 }
 
 window.onload = init;
