@@ -1,6 +1,5 @@
-var drawingfn = null;
-var time = 0;
-var dictionary = {
+type Dict = { [name: string]: string }
+const dictionary: Dict = {
   // Math
   "+": "s.push(s.pop() + s.pop());",
   "*": "s.push(s.pop() * s.pop());",
@@ -20,72 +19,74 @@ var dictionary = {
   // debug
   "dbg": "console.log(s.pop());"
 };
-var specials = {
-  ":": function(dict, tokens, idx) {
-    var end = matchingIndex(":", ";", tokens, idx);
-    dict[tokens[idx+1]] = compile(dict, tokens.slice(idx+2,end));
+type Specials = { [name: string]: (dict: Dict, tokens: Array<string>, idx: number) => [string, number] };
+const specials: Specials = {
+  ":": function (dict, tokens, idx) {
+    const end = matchingIndex(":", ";", tokens, idx);
+    dict[tokens[idx + 1]] = compile(dict, tokens.slice(idx + 2, end));
     return ["", end];
   },
-  "[": function(dict, tokens, idx) {
-    var end = matchingIndex("[", "]", tokens, idx);
-    return [makeFun(dict, tokens.slice(idx+1,end)), end];
+  "[": function (dict, tokens, idx) {
+    const end = matchingIndex("[", "]", tokens, idx);
+    return [makeFun(dict, tokens.slice(idx + 1, end)), end];
   },
-  "(": function(dict, tokens, idx) {
-    var end = matchingIndex("(", ")", tokens, idx);
+  "(": function (dict, tokens, idx) {
+    const end = matchingIndex("(", ")", tokens, idx);
     return ["", end];
   },
-  "'": function(_, tokens, idx) { return ["s.push('" + tokens[idx+1] + "');", idx+1]; }
+  "'": function (_, tokens, idx) { return ["s.push('" + tokens[idx + 1] + "');", idx + 1]; }
 };
 
 
-function matchingIndex(left, right, tokens, startIdx) {
-  var i = startIdx +  1, balance = 1;
-  while(balance > 0 && i < tokens.length) { // todo: forloopify
-    if(tokens[i] == left) balance++;
-    else if(tokens[i] == right) balance--;
+function matchingIndex(left: string, right: string, tokens: Array<string>, startIdx: number) {
+  let i = startIdx + 1, balance = 1;
+  while (balance > 0 && i < tokens.length) { // todo: forloopify
+    if (tokens[i] == left) balance++;
+    else if (tokens[i] == right) balance--;
     i++;
   }
   return --i;
 }
 
-function makeFun(dict, tokens) {
+function makeFun(dict: Dict, tokens: Array<string>) {
   return "s.push(function(){" + compile(dict, tokens) + "});";
 }
 
-function parseNum(token) {
+function parseNum(token: string) {
   return "s.push(" + token + ");";
 }
 
-function compile(dict, tokens) {
-    var str = "";
-    for(var i = 0; i < tokens.length; i++) {
-        var token = tokens[i];
-        if(specials[token]) {
-            ret = specials[token](dict, tokens, i);
-            str += ret[0];
-            i = ret[1];
-        } else {
-            str += dict[token] || parseNum(token);
-        }
+function compile(dict: Dict, tokens: Array<string>) {
+  let str = "";
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (specials[token]) {
+      const [s, idx] = specials[token](dict, tokens, i);
+      str += s;
+      i = idx;
+    } else {
+      str += dict[token] || parseNum(token);
     }
-    return str;
+  }
+  return str;
 }
 
-function i(stack, dict, str){
+function i(stack: Array<any>, dict: Dict, str: string) {
   var js = compile(dict, str.trim().split(/\s+/g));
   console.log(js);
   return new Function("s", js)(stack);
 }
 
 //Drawing
+let ctx, canvas, time, dict, code, output, drawingfn;
 function draw() {
-  if(!drawingfn) return;
+  if (!drawingfn) return;
 
   var img = ctx.createImageData(canvas.width, canvas.height);
   time += 5 //= Date.now();//%512;
   var s = [];
-  for(var y = 0; y < img.height; y++) {
-    for(var x = 0; x < img.width; x++) {
+  for (var y = 0; y < img.height; y++) {
+    for (var x = 0; x < img.width; x++) {
       var index = (x + y * img.width) * 4;
       s.push(time, y, x);
       //var s = [time, y, x];
@@ -110,8 +111,8 @@ function init() {
 
   output = document.getElementById("output");
   // Shift + Enter to eval and draw
-  window.addEventListener("keydown", function(e) {
-    if(e.shiftKey && e.which == 13 && code.value) {
+  window.addEventListener("keydown", function (e) {
+    if (e.shiftKey && e.which == 13 && code.value) {
       var stack = [];
       dict = Object.create(dictionary);
       i(stack, dict, code.value);
